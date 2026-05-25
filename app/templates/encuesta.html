@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ form.title }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding:50px 0 50px">
+  <div class="wrap">
+    <div class="kicker">ENCUESTA · ANÓNIMA · {{ form.code|upper }}</div>
+    <h1>{{ form.title }}</h1>
+    <div class="accent-bar"></div>
+    <p>{{ form.intro }}</p>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    {% if errors %}
+      <div class="alert"><strong>Faltan respuestas obligatorias:</strong>
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+    <form class="survey" method="post" action="/encuesta/{{ form.code }}">
+      {% for sec in form.sections %}
+        <h3>{{ sec.title }}</h3>
+        {% for q in sec.questions %}
+          <div class="q">
+            <label>{{ q.label }}{% if q.required %}<span class="req">*</span>{% endif %}</label>
+            {% set v = (data[q.id] if data and q.id in data else '') %}
+            {% if q.type == 'text' %}
+              <input type="text" name="{{ q.id }}" value="{{ v }}" {% if q.required %}required{% endif %}>
+            {% elif q.type == 'number' %}
+              <input type="number" name="{{ q.id }}" value="{{ v }}" {% if q.min is defined %}min="{{ q.min }}"{% endif %} {% if q.max is defined %}max="{{ q.max }}"{% endif %} {% if q.required %}required{% endif %}>
+            {% elif q.type == 'textarea' %}
+              <textarea name="{{ q.id }}" {% if q.required %}required{% endif %}>{{ v }}</textarea>
+            {% elif q.type == 'select' %}
+              <select name="{{ q.id }}" {% if q.required %}required{% endif %}>
+                <option value="">— seleccione —</option>
+                {% for op in q.options %}<option value="{{ op }}" {% if v==op %}selected{% endif %}>{{ op }}</option>{% endfor %}
+              </select>
+            {% elif q.type == 'radio' %}
+              <div class="opts">
+                {% for op in q.options %}
+                  <label><input type="radio" name="{{ q.id }}" value="{{ op }}" {% if v==op %}checked{% endif %} {% if q.required %}required{% endif %}>{{ op }}</label>
+                {% endfor %}
+              </div>
+            {% elif q.type == 'likert' %}
+              <div class="likert">
+                {% for n in [1,2,3,4,5] %}
+                  <label><input type="radio" name="{{ q.id }}" value="{{ n }}" {% if v|string==n|string %}checked{% endif %} {% if q.required %}required{% endif %}>{{ n }}</label>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% endfor %}
+      <div class="actions">
+        <button class="btn" type="submit">Enviar respuestas</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

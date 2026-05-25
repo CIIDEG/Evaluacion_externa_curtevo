@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Admin · Dashboard{% endblock %}
+{% block content %}
+<section class="hero" style="padding:60px 0 60px">
+  <div class="wrap">
+    <div class="kicker">PANEL DE ADMINISTRACIÓN</div>
+    <h1>Avance de la evaluación</h1>
+    <div class="accent-bar"></div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Estudiantes</h3>
+        <div class="big">{{ total_est }}</div>
+        <p>de meta {{ meta_est }} respuestas (95% confianza · 5% error).</p>
+        <div class="progress"><div class="bar" style="width:{{ pct_est }}%">{{ pct_est }}%</div></div>
+        <p style="margin-top:14px">
+          <a class="btn" href="/admin/respuestas/estudiantes">Ver respuestas</a>
+          <a class="btn alt" href="/admin/export/estudiantes.xlsx" style="margin-left:8px">Descargar Excel</a>
+        </p>
+      </div>
+      <div class="card alt">
+        <h3>Docentes</h3>
+        <div class="big">{{ total_doc }}</div>
+        <p>de meta {{ meta_doc }} respuestas (censo a docentes capacitados).</p>
+        <div class="progress"><div class="bar" style="width:{{ pct_doc }}%">{{ pct_doc }}%</div></div>
+        <p style="margin-top:14px">
+          <a class="btn" href="/admin/respuestas/docentes">Ver respuestas</a>
+          <a class="btn alt" href="/admin/export/docentes.xlsx" style="margin-left:8px">Descargar Excel</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Centro de Evaluación Cutervo{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap bar">
+    <div class="brand"><span class="dot"></span> CENTRO DE EVALUACIÓN · CUTERVO</div>
+    <nav>
+      <a href="/">Inicio</a>
+      <a href="/documentos">Documentos</a>
+      <a href="/cronograma">Cronograma</a>
+      <a href="/encuesta/estudiantes">Encuesta estudiantes</a>
+      <a href="/encuesta/docentes">Encuesta docentes</a>
+    </nav>
+  </div>
+</header>
+
+{% block content %}{% endblock %}
+
+<footer class="site">
+  <div class="wrap">
+    Evaluación Final Externa — Proyecto SOLPCD/2024/0118 · Generalitat Valenciana<br>
+    Dr. Segundo Santos Pérez Pérez · <a href="mailto:Mayamida66@gmail.com">Mayamida66@gmail.com</a> · Cutervo, Cajamarca — Perú
+  </div>
+</footer>
+</body>
+</html>

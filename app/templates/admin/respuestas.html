@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Admin · Respuestas {{ form.code }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding:60px 0 60px">
+  <div class="wrap">
+    <div class="kicker">RESPUESTAS · {{ form.code|upper }}</div>
+    <h1>{{ form.title }}</h1>
+    <div class="accent-bar"></div>
+    <p>{{ rows|length }} registros más recientes (últimos 500).</p>
+    <a class="btn alt" href="/admin/export/{{ form.code }}.xlsx" style="margin-top:14px">Descargar Excel</a>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <table class="tbl">
+      <thead><tr>
+        <th>ID</th><th>Fecha (UTC)</th><th>IE</th><th>Sexo</th><th>Edad</th><th>IP</th>
+      </tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ r.institucion or '—' }}</td>
+          <td>{{ r.sexo or '—' }}</td>
+          <td>{{ r.edad or '—' }}</td>
+          <td style="font-size:11px;color:#999">{{ r.ip or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

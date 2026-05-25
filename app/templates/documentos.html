@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Documentos · Centro de Evaluación Cutervo{% endblock %}
+{% block content %}
+<section class="hero" style="padding:60px 0 60px">
+  <div class="wrap">
+    <div class="kicker">BIBLIOTECA DEL PROYECTO</div>
+    <h1>Documentos descargables</h1>
+    <div class="accent-bar"></div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    {% if items %}
+    <table class="tbl">
+      <thead><tr><th>Archivo</th><th style="width:110px">Tamaño</th><th style="width:160px"></th></tr></thead>
+      <tbody>
+      {% for it in items %}
+        <tr><td>{{ it.name }}</td><td>{{ it.size_kb }} KB</td>
+          <td><a class="btn" style="padding:8px 18px;font-size:12px" href="/documentos/{{ it.name }}">Descargar</a></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="card"><p>Aún no hay documentos cargados. Cópialos a la carpeta <code>docs/</code> del repositorio y haz push a GitHub.</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

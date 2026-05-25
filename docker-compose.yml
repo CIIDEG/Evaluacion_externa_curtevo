@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    container_name: cutervo-app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/code/data
+      - ./docs:/code/docs:ro
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: cutervo-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:

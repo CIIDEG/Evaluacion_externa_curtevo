@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Cronograma · Centro de Evaluación Cutervo{% endblock %}
+{% block content %}
+<section class="hero" style="padding:60px 0 60px">
+  <div class="wrap">
+    <div class="kicker">12 SEMANAS · 3 FASES · 3 PRODUCTOS</div>
+    <h1>Cronograma de la evaluación</h1>
+    <div class="accent-bar"></div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <div class="gantt">
+      <table>
+        <thead>
+          <tr><th style="text-align:left">Fase / Actividad</th>
+          {% for i in range(1,13) %}<th>S{{ i }}</th>{% endfor %}
+          <th>Producto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="label">Fase I — Gabinete y diseño</td>
+            <td class="f1"></td><td class="f1"></td><td class="f1"></td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            <td class="milestone">P1</td></tr>
+          <tr><td class="label">Fase II — Trabajo de campo</td>
+            <td></td><td></td><td></td>
+            <td class="f2"></td><td class="f2"></td><td class="f2"></td><td class="f2"></td>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td>—</td></tr>
+          <tr><td class="label">Fase III — Análisis e informes</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            <td class="f3"></td><td class="f3"></td><td class="f3"></td><td class="f3"></td><td class="f3"></td>
+            <td class="milestone">P3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
