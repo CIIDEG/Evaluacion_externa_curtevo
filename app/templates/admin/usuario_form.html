@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{% if edit_user %}Editar usuario{% else %}Nuevo usuario{% endif %}{% endblock %}
+{% block content %}
+<section class="hero" style="padding:50px 0 40px">
+  <div class="wrap">
+    <div class="kicker">{% if edit_user %}EDITAR USUARIO #{{ edit_user.id }}{% else %}NUEVO USUARIO{% endif %}</div>
+    <h1>{% if edit_user %}{{ edit_user.username }}{% else %}Crear nuevo perfil{% endif %}</h1>
+    <div class="accent-bar"></div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap" style="max-width:680px">
+    {% if err %}<div class="alert">{{ err }}</div>{% endif %}
+    <form class="survey" method="post" action="{% if edit_user %}/admin/usuarios/{{ edit_user.id }}{% else %}/admin/usuarios/nuevo{% endif %}">
+      <div class="q">
+        <label>Nombre de usuario <span class="req">*</span></label>
+        <input type="text" name="username" value="{{ edit_user.username if edit_user else '' }}" {% if edit_user %}readonly{% endif %} required pattern="[a-z0-9._-]{3,40}">
+        <small style="opacity:.6;font-size:11px">3-40 caracteres: minúsculas, números, . _ -</small>
+      </div>
+      <div class="q">
+        <label>Nombre completo</label>
+        <input type="text" name="full_name" value="{{ edit_user.full_name if edit_user else '' }}">
+      </div>
+      <div class="q">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ edit_user.email if edit_user else '' }}">
+      </div>
+      <div class="q">
+        <label>Rol <span class="req">*</span></label>
+        <select name="role" required>
+          {% for code, desc in ROLES.items() %}
+            <option value="{{ code }}" {% if edit_user and edit_user.role==code %}selected{% endif %}>{{ ROLE_LABELS[code] }} — {{ desc }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if edit_user %}
+      <div class="q">
+        <label><input type="checkbox" name="is_active" value="1" {% if edit_user.is_active %}checked{% endif %}> Usuario activo</label>
+      </div>
+      <div class="q">
+        <label>Nueva contraseña (opcional · dejar vacío para no cambiar)</label>
+        <input type="password" name="new_password" minlength="8">
+      </div>
+      {% else %}
+      <div class="q">
+        <label>Contraseña inicial <span class="req">*</span></label>
+        <input type="password" name="password" required minlength="8">
+        <small style="opacity:.6;font-size:11px">Mínimo 8 caracteres · el usuario deberá cambiarla en su primer acceso.</small>
+      </div>
+      {% endif %}
+      <div class="actions">
+        <a class="btn outline" href="/admin/usuarios" style="color:var(--navy);border-color:var(--navy);margin-right:10px">Cancelar</a>
+        <button class="btn" type="submit">{% if edit_user %}Guardar cambios{% else %}Crear usuario{% endif %}</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
