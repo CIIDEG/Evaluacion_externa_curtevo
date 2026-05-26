@@ -139,16 +139,15 @@ def all_audios(db: Session) -> list:
 
 
 def build_full_results(db: Session, include_audios: bool = False) -> dict:
-    """Construye el payload completo para la página de resultados.
-
-    Si include_audios=True (evaluador logueado), incluye la lista completa de audios.
-    """
+    """Construye el payload completo para la página de resultados."""
+    from . import impact as impact_mod
     out = {
         "overview": overview_metrics(db),
         "quantitative": {},
         "qualitative": {},
         "cad_index": defaultdict(list),
         "audios": [],
+        "impact": impact_mod.build_impact_overview(db),
     }
     for f in ALL_FORMS:
         code = f["code"]
