@@ -7,8 +7,7 @@
     <div class="accent-bar"></div>
     <p>Portal de la evaluación final externa del proyecto SOLPCD/2024/0118, cofinanciado por la Generalitat Valenciana y ejecutado por el consorcio Intersindical Solidaria (IS) e Instituto de Pedagogía Popular (IPP).</p>
     <div style="margin-top:30px">
-      <a class="btn" href="/encuesta/estudiantes">Soy estudiante · participar</a>
-      <a class="btn alt" href="/encuesta/docentes" style="margin-left:10px">Soy docente · participar</a>
+      <a class="btn" href="/anexos">Ver los 7 anexos</a>
       <a class="btn outline" href="/documentos" style="margin-left:10px">Documentos</a>
     </div>
   </div>
@@ -29,34 +28,17 @@
 
 <section class="section" style="background:var(--white)">
   <div class="wrap">
-    <h2>Seis criterios CAD/OCDE</h2>
-    <p class="lead">La evaluación responde a las preguntas clave del Comité de Ayuda al Desarrollo.</p>
+    <h2>Instrumentos de la evaluación</h2>
+    <p class="lead">7 anexos del Plan de Trabajo. Las entrevistas y grupos focales aceptan respuestas escritas y/o grabación de audio.</p>
     <div class="grid cols-3">
-      <div class="card"><h3>Pertinencia</h3><p>¿Respondió a las necesidades reales y a las prioridades de género?</p></div>
-      <div class="card alt"><h3>Coherencia</h3><p>¿Es consistente con las políticas locales y regionales?</p></div>
-      <div class="card gold"><h3>Eficiencia</h3><p>¿Recursos, plazos y gestión IS-IPP fueron óptimos?</p></div>
-      <div class="card"><h3>Eficacia</h3><p>¿Se lograron R1, R2 y R3 con equidad de género?</p></div>
-      <div class="card alt"><h3>Impacto</h3><p>¿Qué transformaciones significativas se produjeron?</p></div>
-      <div class="card gold"><h3>Sostenibilidad</h3><p>¿Continúan los beneficios sin apoyo externo?</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2>Tu participación importa</h2>
-    <p class="lead">Las encuestas son anónimas y se aplican en cumplimiento de la normativa de la Cooperació Valenciana.</p>
-    <div class="grid cols-2">
-      <div class="card">
-        <h3>Estudiantes</h3>
-        <p>Cuestionario de 20 minutos sobre habilidades de emprendimiento, derechos y proyecto de vida.</p>
-        <a class="btn" href="/encuesta/estudiantes">Empezar</a>
+      {% for f in ALL_FORMS %}
+      <div class="card {% if loop.index0 % 3 == 1 %}alt{% elif loop.index0 % 3 == 2 %}gold{% endif %}">
+        <div class="chip">{{ f.kind|upper }}</div>
+        <h3>{{ f.title.split(' · ')[0] }}</h3>
+        <p style="font-size:13px;color:var(--dark);opacity:.75">{{ f.title.split(' · ')[1] if ' · ' in f.title else '' }}</p>
+        <a class="btn small" href="/encuesta/{{ f.code }}">Abrir →</a>
       </div>
-      <div class="card alt">
-        <h3>Docentes</h3>
-        <p>Cuestionario de 25 minutos sobre la formación recibida y su aplicación pedagógica.</p>
-        <a class="btn alt" href="/encuesta/docentes">Empezar</a>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </section>

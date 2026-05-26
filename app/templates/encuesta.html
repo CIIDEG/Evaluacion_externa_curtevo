@@ -3,7 +3,7 @@
 {% block content %}
 <section class="hero" style="padding:50px 0 50px">
   <div class="wrap">
-    <div class="kicker">ENCUESTA · ANÓNIMA · {{ form.code|upper }}</div>
+    <div class="kicker">{{ form.kind|upper }} · {{ form.target }}</div>
     <h1>{{ form.title }}</h1>
     <div class="accent-bar"></div>
     <p>{{ form.intro }}</p>
@@ -16,7 +16,8 @@
         <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
       </div>
     {% endif %}
-    <form class="survey" method="post" action="/encuesta/{{ form.code }}">
+    <form class="survey" id="survey-form" method="post" action="/encuesta/{{ form.code }}" enctype="multipart/form-data">
+      <input type="hidden" name="__draft_id" id="draft_id" value="{{ draft_id }}">
       {% for sec in form.sections %}
         <h3>{{ sec.title }}</h3>
         {% for q in sec.questions %}
@@ -25,6 +26,8 @@
             {% set v = (data[q.id] if data and q.id in data else '') %}
             {% if q.type == 'text' %}
               <input type="text" name="{{ q.id }}" value="{{ v }}" {% if q.required %}required{% endif %}>
+            {% elif q.type == 'date' %}
+              <input type="date" name="{{ q.id }}" value="{{ v }}" {% if q.required %}required{% endif %}>
             {% elif q.type == 'number' %}
               <input type="number" name="{{ q.id }}" value="{{ v }}" {% if q.min is defined %}min="{{ q.min }}"{% endif %} {% if q.max is defined %}max="{{ q.max }}"{% endif %} {% if q.required %}required{% endif %}>
             {% elif q.type == 'textarea' %}
@@ -46,6 +49,19 @@
                   <label><input type="radio" name="{{ q.id }}" value="{{ n }}" {% if v|string==n|string %}checked{% endif %} {% if q.required %}required{% endif %}>{{ n }}</label>
                 {% endfor %}
               </div>
+            {% elif q.type == 'file' %}
+              <input type="file" name="{{ q.id }}" accept="image/*" data-upload-file="{{ q.id }}">
+            {% elif q.type == 'audio_text' %}
+              <div class="audio-text">
+                <textarea name="{{ q.id }}" placeholder="Escribe la respuesta aquí (opcional si vas a grabar audio)…">{{ v }}</textarea>
+                <div class="recorder" data-qid="{{ q.id }}">
+                  <button type="button" class="rec-btn" data-action="start"><span class="rec-dot"></span> Grabar audio</button>
+                  <button type="button" class="rec-btn stop" data-action="stop" disabled>■ Detener</button>
+                  <span class="rec-status">Listo</span>
+                </div>
+                <div class="rec-list"></div>
+                <div class="rec-error"></div>
+              </div>
             {% endif %}
           </div>
         {% endfor %}
@@ -56,4 +72,85 @@
     </form>
   </div>
 </section>
+
+<script>
+const FORM_CODE = "{{ form.code }}";
+const DRAFT_ID = "{{ draft_id }}";
+
+document.querySelectorAll('.recorder').forEach(rec => {
+  const qid = rec.dataset.qid;
+  const btnStart = rec.querySelector('[data-action="start"]');
+  const btnStop = rec.querySelector('[data-action="stop"]');
+  const status = rec.querySelector('.rec-status');
+  const list = rec.parentElement.querySelector('.rec-list');
+  const errEl = rec.parentElement.querySelector('.rec-error');
+  let mediaRecorder, chunks = [], startTime;
+
+  btnStart.addEventListener('click', async () => {
+    errEl.textContent = '';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      mediaRecorder = new MediaRecorder(stream, {mimeType:'audio/webm'});
+      chunks = [];
+      mediaRecorder.ondataavailable = e => chunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t=>t.stop());
+        const blob = new Blob(chunks, {type:'audio/webm'});
+        const url = URL.createObjectURL(blob);
+        const audio = document.createElement('audio');
+        audio.controls = true; audio.src = url;
+        list.appendChild(audio);
+        status.textContent = 'Subiendo audio…';
+        try {
+          const fd = new FormData();
+          fd.append('audio', blob, qid + '.webm');
+          const resp = await fetch(`/upload-audio/${FORM_CODE}/${DRAFT_ID}/${qid}`, {method:'POST', body:fd});
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          const j = await resp.json();
+          status.textContent = '✓ Audio guardado (' + Math.round(j.size/1024) + ' KB)';
+        } catch(e) {
+          errEl.textContent = 'Error al subir el audio: ' + e.message;
+          status.textContent = 'Listo';
+        }
+      };
+      mediaRecorder.start();
+      startTime = Date.now();
+      btnStart.classList.add('recording');
+      btnStart.disabled = true; btnStop.disabled = false;
+      status.textContent = '● Grabando…';
+      const tick = setInterval(()=>{
+        if (mediaRecorder.state !== 'recording') return clearInterval(tick);
+        const sec = Math.floor((Date.now()-startTime)/1000);
+        status.textContent = '● Grabando ' + Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0');
+      }, 500);
+    } catch (e) {
+      errEl.textContent = 'No se pudo acceder al micrófono: ' + e.message + ' (usa Chrome y otorga permisos)';
+    }
+  });
+
+  btnStop.addEventListener('click', () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      btnStart.classList.remove('recording');
+      btnStart.disabled = false; btnStop.disabled = true;
+    }
+  });
+});
+
+// Upload de archivos (foto observación)
+document.querySelectorAll('[data-upload-file]').forEach(inp => {
+  inp.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const qid = inp.dataset.uploadFile;
+    const fd = new FormData(); fd.append('file', file);
+    try {
+      const resp = await fetch(`/upload-file/${FORM_CODE}/${DRAFT_ID}/${qid}`, {method:'POST', body:fd});
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      // marcar visual
+      inp.style.borderColor = 'var(--aqua)';
+    } catch (e) { alert('Error subiendo archivo: ' + e.message); }
+  });
+});
+</script>
 {% endblock %}

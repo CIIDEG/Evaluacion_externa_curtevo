@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Anexos · Centro de Evaluación Cutervo{% endblock %}
+{% block content %}
+<section class="hero" style="padding:60px 0 60px">
+  <div class="wrap">
+    <div class="kicker">SIETE INSTRUMENTOS · UN PROPÓSITO</div>
+    <h1>Anexos del Plan de Trabajo</h1>
+    <div class="accent-bar"></div>
+    <p>Selecciona el instrumento que quieres aplicar. Las entrevistas y grupos focales permiten escribir respuestas y/o grabar audio. Los instrumentos del evaluador requieren login 🔒.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <div class="grid cols-2">
+      {% for f in ALL_FORMS %}
+      <div class="card {% if loop.index0 % 3 == 1 %}alt{% elif loop.index0 % 3 == 2 %}gold{% endif %}">
+        <div class="chip">{{ f.kind|upper }}{% if f.code in PRIVATE_FORMS %} · 🔒 EVALUADOR{% else %} · 👥 PÚBLICO{% endif %}</div>
+        <h3>{{ f.title }}</h3>
+        <p style="color:var(--dark);opacity:.75;font-size:13px">{{ f.intro }}</p>
+        <p style="color:var(--navy);font-weight:700;font-size:12px;margin-top:14px">🎯 {{ f.target }}</p>
+        <a class="btn small" href="/encuesta/{{ f.code }}">Abrir formulario →</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

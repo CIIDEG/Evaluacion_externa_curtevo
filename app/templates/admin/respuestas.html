@@ -6,25 +6,27 @@
     <div class="kicker">RESPUESTAS · {{ form.code|upper }}</div>
     <h1>{{ form.title }}</h1>
     <div class="accent-bar"></div>
-    <p>{{ rows|length }} registros más recientes (últimos 500).</p>
-    <a class="btn alt" href="/admin/export/{{ form.code }}.xlsx" style="margin-top:14px">Descargar Excel</a>
+    <p>{{ rows|length }} registros (últimos 500). <a class="btn small alt" href="/admin/export/{{ form.code }}.xlsx" style="margin-left:14px">⬇ Descargar Excel</a>
+       <a class="btn small outline" href="/admin" style="margin-left:8px">← Dashboard</a></p>
   </div>
 </section>
 <section class="section">
   <div class="wrap">
     <table class="tbl">
       <thead><tr>
-        <th>ID</th><th>Fecha (UTC)</th><th>IE</th><th>Sexo</th><th>Edad</th><th>IP</th>
+        <th>ID</th><th>Fecha (UTC)</th><th>IE / Inst.</th><th>Sexo</th><th>Edad</th><th>Audios</th><th>IP</th><th></th>
       </tr></thead>
       <tbody>
-        {% for r in rows %}
+        {% for item in rows %}
         <tr>
-          <td>{{ r.id }}</td>
-          <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-          <td>{{ r.institucion or '—' }}</td>
-          <td>{{ r.sexo or '—' }}</td>
-          <td>{{ r.edad or '—' }}</td>
-          <td style="font-size:11px;color:#999">{{ r.ip or '—' }}</td>
+          <td>{{ item.r.id }}</td>
+          <td>{{ item.r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ item.r.institucion or '—' }}</td>
+          <td>{{ item.r.sexo or '—' }}</td>
+          <td>{{ item.r.edad or '—' }}</td>
+          <td>{% if item.n_audios %}🎧 {{ item.n_audios }}{% else %}—{% endif %}</td>
+          <td style="font-size:11px;color:#999">{{ item.r.ip or '—' }}</td>
+          <td><a class="btn small" href="/admin/respuesta/{{ form.code }}/{{ item.r.id }}">Ver detalle</a></td>
         </tr>
         {% endfor %}
       </tbody>

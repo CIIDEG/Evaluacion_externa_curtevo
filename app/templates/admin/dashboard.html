@@ -1,36 +1,45 @@
 {% extends "base.html" %}
-{% block title %}Admin · Dashboard{% endblock %}
+{% block title %}Panel del evaluador{% endblock %}
 {% block content %}
 <section class="hero" style="padding:60px 0 60px">
   <div class="wrap">
-    <div class="kicker">PANEL DE ADMINISTRACIÓN</div>
-    <h1>Avance de la evaluación</h1>
+    <div class="kicker">PANEL DEL EVALUADOR</div>
+    <h1>Bienvenido, {{ user }}.</h1>
     <div class="accent-bar"></div>
+    <p style="margin-top:16px">Avance global de la evaluación y acciones rápidas.</p>
+    <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn alt" href="{{ public_results_url }}">📊 Ver página de Resultados</a>
+      <a class="btn outline" href="/admin/download-db">⬇ Descargar BD (.db)</a>
+      {% if ai_enabled %}
+        <form method="post" action="/admin/ai/transcribe-all" style="display:inline">
+          <button type="submit" class="btn">🎙 Transcribir audios pendientes</button>
+        </form>
+      {% endif %}
+    </div>
+    <p style="font-size:12px;color:var(--grey);margin-top:18px">
+      🔗 Enlace público de resultados (compártelo con quien necesite verlo):<br>
+      <code style="background:rgba(255,255,255,.1);padding:6px 10px;border-radius:6px;color:#fff;font-size:11px;word-break:break-all">https://evafinal.metacalidad.cloud{{ public_results_url }}</code>
+    </p>
   </div>
 </section>
 <section class="section">
   <div class="wrap">
+    <h2>Instrumentos</h2>
     <div class="grid cols-2">
-      <div class="card">
-        <h3>Estudiantes</h3>
-        <div class="big">{{ total_est }}</div>
-        <p>de meta {{ meta_est }} respuestas (95% confianza · 5% error).</p>
-        <div class="progress"><div class="bar" style="width:{{ pct_est }}%">{{ pct_est }}%</div></div>
-        <p style="margin-top:14px">
-          <a class="btn" href="/admin/respuestas/estudiantes">Ver respuestas</a>
-          <a class="btn alt" href="/admin/export/estudiantes.xlsx" style="margin-left:8px">Descargar Excel</a>
+      {% for row in overview.forms %}
+      <div class="card {% if loop.index0 % 3 == 1 %}alt{% elif loop.index0 % 3 == 2 %}gold{% endif %}">
+        <div class="chip">{{ row.kind|upper }}</div>
+        <h3>{{ row.title }}</h3>
+        <div class="big">{{ row.total }}</div>
+        <p>de meta {{ row.meta }}</p>
+        <div class="progress"><div class="bar" style="width:{{ row.pct }}%">{{ row.pct }}%</div></div>
+        <p style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn small" href="/admin/respuestas/{{ row.code }}">Respuestas</a>
+          <a class="btn small alt" href="/admin/export/{{ row.code }}.xlsx">Excel</a>
+          <a class="btn small outline" href="/encuesta/{{ row.code }}" style="color:var(--navy);border-color:var(--navy)">Abrir formulario</a>
         </p>
       </div>
-      <div class="card alt">
-        <h3>Docentes</h3>
-        <div class="big">{{ total_doc }}</div>
-        <p>de meta {{ meta_doc }} respuestas (censo a docentes capacitados).</p>
-        <div class="progress"><div class="bar" style="width:{{ pct_doc }}%">{{ pct_doc }}%</div></div>
-        <p style="margin-top:14px">
-          <a class="btn" href="/admin/respuestas/docentes">Ver respuestas</a>
-          <a class="btn alt" href="/admin/export/docentes.xlsx" style="margin-left:8px">Descargar Excel</a>
-        </p>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </section>
