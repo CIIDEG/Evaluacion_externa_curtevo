@@ -1,18 +1,20 @@
 """Definición de las encuestas y formularios cualitativos."""
 
+# Instituciones Educativas reales del convenio IPP–IS–STEPV (febrero 2024 – febrero 2026)
 INSTITUCIONES = [
-    "IE Toribio Casanova",
-    "IE Andrés Avelino Cáceres",
-    "IE Juan Pablo II",
-    "IE Cristo Rey",
-    "IE Inmaculada Concepción",
-    "IE San Juan",
-    "IE Santo Tomás",
-    "IE Mariscal Castilla",
-    "IE Nuestra Señora del Carmen",
-    "IE Antonio Raimondi",
-    "IE José Carlos Mariátegui",
-    "IE José Olaya",
+    "IE Fe y Alegría 69 — Cutervo",
+    "IE Carlos Matta Rivera — C.P. Mamabamba",
+    "IE Jorge Basadre Grohmann — C.P. Sumidero",
+    "IE Eloy Llatas Barón — C.P. Aullán",
+    "IE Enrique Guzmán y Valle — C.P. Cruz Roja",
+    "IE 22 de Octubre — C.P. Urcurume",
+    "IE Juan Velasco Alvarado — C.P. Adcuñac",
+    "IE José Antonio Arrascue Chupillón — C.P. Naranjito",
+    "IE Víctor Herrera Delgado — Tacabamba",
+    "IE Inca G. de la Vega — La Ramada",
+    "IE Santo Domingo — La Capilla",
+    "IE Arturo Osores Cabrera — Anguía",
+    "Otra (especificar abajo)",
 ]
 
 
@@ -32,6 +34,7 @@ ENCUESTA_ESTUDIANTES = {
     "sections": [
         {"title": "A. Datos generales", "questions": [
             {"id":"institucion","label":"Institución educativa","type":"select","options":INSTITUCIONES,"required":True},
+            {"id":"institucion_otra","label":"Si elegiste «Otra», escribe aquí el nombre de la IE:","type":"text"},
             {"id":"sexo","label":"Sexo","type":"radio","options":["Mujer","Hombre","Prefiero no decir"],"required":True},
             {"id":"edad","label":"Edad","type":"number","required":True,"min":12,"max":25},
             {"id":"grado","label":"Grado / Condición","type":"select","options":["5° secundaria","Egresado/a"],"required":True},
@@ -78,6 +81,7 @@ ENCUESTA_DOCENTES = {
     "sections": [
         {"title": "A. Datos generales", "questions": [
             {"id":"institucion","label":"Institución educativa","type":"select","options":INSTITUCIONES,"required":True},
+            {"id":"institucion_otra","label":"Si elegiste «Otra», escribe aquí el nombre de la IE:","type":"text"},
             {"id":"sexo","label":"Sexo","type":"radio","options":["Mujer","Hombre","Prefiero no decir"],"required":True},
             {"id":"anios","label":"Años de experiencia docente","type":"number","required":True,"min":0,"max":60},
             {"id":"area","label":"Área curricular principal","type":"text","required":True},
@@ -156,6 +160,7 @@ FGD_JOVENES = {
     "sections": [
         {"title": "Identificación del grupo focal", "questions": [
             {"id":"institucion","label":"Institución educativa / sede","type":"select","options":INSTITUCIONES,"required":True},
+            {"id":"institucion_otra","label":"Si elegiste «Otra», escribe aquí el nombre de la IE:","type":"text"},
             {"id":"fecha","label":"Fecha","type":"date","required":True},
             {"id":"n_part","label":"Número total de participantes","type":"number","required":True,"min":3,"max":30},
             {"id":"n_mujeres","label":"De los anteriores, número de mujeres","type":"number","required":True,"min":0,"max":30},
@@ -190,6 +195,7 @@ FGD_DOCENTES = {
     "sections": [
         {"title": "Identificación del grupo focal", "questions": [
             {"id":"institucion","label":"Institución educativa / sede","type":"select","options":INSTITUCIONES,"required":True},
+            {"id":"institucion_otra","label":"Si elegiste «Otra», escribe aquí el nombre de la IE:","type":"text"},
             {"id":"fecha","label":"Fecha","type":"date","required":True},
             {"id":"n_part","label":"Número total de participantes","type":"number","required":True,"min":3,"max":30},
             {"id":"n_mujeres","label":"De los anteriores, número de mujeres","type":"number","required":True,"min":0,"max":30},
@@ -224,6 +230,7 @@ OBSERVACION = {
     "sections": [
         {"title": "Identificación", "questions": [
             {"id":"institucion","label":"Institución educativa visitada","type":"select","options":INSTITUCIONES,"required":True},
+            {"id":"institucion_otra","label":"Si elegiste «Otra», escribe aquí el nombre de la IE:","type":"text"},
             {"id":"fecha","label":"Fecha","type":"date","required":True},
             {"id":"observador","label":"Observador/a","type":"text"},
             {"id":"hora","label":"Hora de la visita","type":"text"},
