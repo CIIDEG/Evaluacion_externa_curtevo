@@ -7,26 +7,35 @@ services:
     volumes:
       - ./data:/code/data
       - ./docs:/code/docs:ro
-    expose:
-      - "8000"
+    networks:
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=coolify"
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: cutervo-caddy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - DOMAIN=${DOMAIN}
-      - ADMIN_EMAIL=${ADMIN_EMAIL}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - app
+      # ============================
+      #   Router HTTPS (puerto 443)
+      # ============================
+      - "traefik.http.routers.cutervo.rule=Host(`evafinal.metacalidad.cloud`)"
+      - "traefik.http.routers.cutervo.entrypoints=https"
+      - "traefik.http.routers.cutervo.tls=true"
+      - "traefik.http.routers.cutervo.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.cutervo.service=cutervo"
 
-volumes:
-  caddy_data:
-  caddy_config:
+      # ============================
+      #   Servicio (apunta al puerto interno 8000 de FastAPI)
+      # ============================
+      - "traefik.http.services.cutervo.loadbalancer.server.port=8000"
+
+      # ============================
+      #   Router HTTP (puerto 80) → redirige a HTTPS
+      # ============================
+      - "traefik.http.routers.cutervo-http.rule=Host(`evafinal.metacalidad.cloud`)"
+      - "traefik.http.routers.cutervo-http.entrypoints=http"
+      - "traefik.http.routers.cutervo-http.middlewares=cutervo-redir"
+      - "traefik.http.middlewares.cutervo-redir.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.cutervo-redir.redirectscheme.permanent=true"
+
+networks:
+  coolify:
+    external: true
