@@ -53,9 +53,10 @@
     <a href="#resumen">Resumen</a>
     <a href="#impacto">Nivel de impacto</a>
     <a href="#cad">Criterios CAD</a>
-    <a href="#cuanti">Resultados cuantitativos</a>
-    <a href="#cuali">Voces cualitativas</a>
+    <a href="#cuanti">Cuantitativos</a>
+    <a href="#cuali">Voces</a>
     <a href="#audios">Audios</a>
+    <a href="#informe" style="background:var(--coral)">📄 Informe</a>
   </div>
 </nav>
 
@@ -346,6 +347,169 @@
     {% elif is_evaluator %}
       <p style="color:var(--dark);opacity:.7">Aún no hay audios registrados.</p>
     {% endif %}
+  </div>
+</section>
+
+<!-- =============== INFORME AUTOMATIZADO (estilo LdB) =============== -->
+<section class="report-section" id="informe" style="background:#fafbfd;border-top:6px solid var(--coral)">
+  <div class="wrap">
+    {% set R = payload.report_lb %}
+    <p class="kicker" style="color:var(--coral);font-weight:700;letter-spacing:3px;font-size:11px">INFORME AUTOMATIZADO · ACTUALIZADO {{ R.generated_at }} UTC</p>
+    <h2 style="font-size:36px;line-height:1.1">6 · Informe de resultados<br><span style="color:var(--coral)">«Mejora de las oportunidades de inserción sociolaboral juvenil en Cutervo»</span></h2>
+    <p class="lead">Replica la estructura del informe de Línea de Base del IPP. Se actualiza solo conforme entran respuestas.</p>
+
+    <!-- I. DATOS GENERALES -->
+    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">I · Datos generales</h3>
+    <table class="tbl" style="margin-top:14px">
+      <tbody>
+        <tr><td style="width:30%;font-weight:600;color:var(--navy)">Población participante</td><td>Estudiantes del nivel secundario y docentes capacitados de Cutervo – Cajamarca participantes en el proyecto.</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy)">Instrumentos</td><td>Cuestionarios virtuales (Anexos 1 y 2) + instrumentos cualitativos (KII, FGD, MSC, observación).</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy)">Ubicación</td><td>Provincia de Cutervo, Cajamarca – Perú.</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy)">Período de aplicación</td><td>{{ R.fecha_min }} – {{ R.fecha_max }}</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy)">N° de participantes</td><td><strong>{{ R.n_est }} estudiantes</strong> y <strong>{{ R.n_doc }} docentes</strong> en <strong>{{ R.n_iiee }} instituciones educativas</strong></td></tr>
+      </tbody>
+    </table>
+
+    <!-- II. OBJETIVO -->
+    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">II · Objetivo</h3>
+    <p>Valorar de forma crítica, participativa y basada en evidencias el grado de alcance de los resultados planificados, su contribución al logro de los objetivos de desarrollo, así como el desempeño institucional del consorcio IS-IPP, con énfasis en habilidades de emprendimiento, derechos económicos y sociales, equidad de género y proyecto de vida.</p>
+
+    <!-- III. METODOLOGÍA -->
+    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">III · Metodología</h3>
+    <ul style="margin-top:8px">
+      <li><strong>Tipo:</strong> mixta (cuantitativa + cualitativa)</li>
+      <li><strong>Ámbitos de indagación:</strong>
+        <ul>
+          <li>Datos sociodemográficos</li>
+          <li>Habilidades de emprendimiento (R2)</li>
+          <li>Derechos económicos y sociales (R3)</li>
+          <li>Equidad de género</li>
+          <li>Proyecto de vida e impacto</li>
+          <li>Capacidades docentes (R1) y sostenibilidad</li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- IV. RESULTADOS -->
+    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">IV · Resultados</h3>
+
+    <!-- 4.1 Perfil -->
+    <h4 style="color:var(--coral);margin-top:24px">4.1 · Perfil de los encuestados</h4>
+    {% if R.n_est %}
+      <p>Se aplicó la encuesta en <strong>{{ R.n_iiee }} IIEE</strong> con un total de <strong>{{ R.n_est }} estudiantes</strong>.
+        {% if R.perfil_sexo %}
+          Participación por sexo:
+          {% for s in R.perfil_sexo %}{{ s.label }} <strong>{{ s.pct }}%</strong>{% if not loop.last %}, {% endif %}{% endfor %}.
+        {% endif %}
+        {% if R.edad_avg %}Edad promedio {{ R.edad_avg }} años (rango {{ R.edad_min }}–{{ R.edad_max }}).{% endif %}
+      </p>
+      <div class="grid cols-2" style="margin-top:14px">
+        <table class="tbl">
+          <thead><tr><th>Institución educativa</th><th style="width:60px">N°</th><th style="width:60px">%</th></tr></thead>
+          <tbody>
+            {% for it in R.perfil_ie %}<tr><td>{{ it.label }}</td><td>{{ it.n }}</td><td>{{ it.pct }}</td></tr>{% endfor %}
+            <tr style="font-weight:700;background:var(--ivory)"><td>Total general</td><td>{{ R.n_est }}</td><td>100.0</td></tr>
+          </tbody>
+        </table>
+        <table class="tbl">
+          <thead><tr><th>Zona de residencia</th><th style="width:60px">N°</th><th style="width:60px">%</th></tr></thead>
+          <tbody>
+            {% for it in R.perfil_zona %}<tr><td>{{ it.label }}</td><td>{{ it.n }}</td><td>{{ it.pct }}</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p style="opacity:.6">Aún sin respuestas de estudiantes registradas.</p>
+    {% endif %}
+
+    <!-- 4.2 Emprendimiento -->
+    <h4 style="color:var(--coral);margin-top:24px">4.2 · Emprendimiento escolar (R2)</h4>
+    {% if R.n_est %}
+    <p>El <strong>{{ R.pct_participo }}%</strong> de estudiantes señala haber participado en sesiones de emprendimiento.
+       El <strong>{{ R.pct_equipo }}%</strong> formó un equipo de emprendimiento escolar; de ellos, el <strong>{{ R.pct_activo }}%</strong> mantiene su iniciativa activa al momento de la evaluación.
+       La autopercepción de mejora de habilidades de emprendimiento es <strong>{{ R.avg_habil or '—' }}/5</strong>.
+       El <strong>{{ R.pct_conoce_emp }}%</strong> conoce «mucho» o «algo» sobre las ventajas e inconvenientes de crear una empresa.</p>
+    {% endif %}
+
+    <!-- 4.3 Derechos y equidad de género -->
+    <h4 style="color:var(--coral);margin-top:24px">4.3 · Derechos y equidad de género (R3)</h4>
+    {% if R.n_est %}
+    <p>El nivel autopercibido de conocimientos sobre derechos laborales es <strong>{{ R.avg_conoc_derechos or '—' }}/5</strong>.
+      El <strong>{{ R.pct_consulta }}%</strong> ha realizado consultas en el gabinete de orientación de su IE.</p>
+    <p>Percepción de equidad de género entre mujeres y hombres durante el proyecto:
+      <strong>Sí {{ R.pct_equidad_alta }}%</strong> · <strong>En parte {{ R.pct_equidad_parcial }}%</strong> · <strong>No {{ R.pct_equidad_no }}%</strong>.</p>
+    {% if R.eq_por_sexo %}
+    <table class="tbl" style="max-width:680px">
+      <thead><tr><th>Sexo</th><th>Sí hay equidad</th><th>En parte</th><th>No hay equidad</th><th>N</th></tr></thead>
+      <tbody>
+        {% for sx, v in R.eq_por_sexo.items() %}
+        <tr><td><strong>{{ sx }}</strong></td><td>{{ v.si }}%</td><td>{{ v.parte }}%</td><td>{{ v.no }}%</td><td>{{ v.n }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% endif %}
+
+    <!-- 4.4 Proyecto de vida -->
+    <h4 style="color:var(--coral);margin-top:24px">4.4 · Impacto en proyecto de vida</h4>
+    {% if R.n_est %}
+    <p>El <strong>{{ R.pct_futuro_mucho }}%</strong> percibe que el proyecto cambió «mucho» o «algo» su visión del futuro laboral.
+       El <strong>{{ R.pct_metas }}%</strong> declara tener un proyecto de vida con metas claras.
+       El <strong>{{ R.pct_autoempleo }}%</strong> ya está autoempleado o desarrollando una iniciativa productiva.</p>
+    {% endif %}
+
+    <!-- 4.5 Docentes -->
+    <h4 style="color:var(--coral);margin-top:24px">4.5 · Capacidades docentes (R1) y sostenibilidad</h4>
+    {% if R.n_doc %}
+    <p>El <strong>{{ R.pct_curso_completo }}%</strong> de docentes completó los dos cursos de formación híbrida en emprendimiento juvenil, con una utilidad pedagógica autopercibida de <strong>{{ R.avg_utilidad or '—' }}/5</strong>.
+       El <strong>{{ R.pct_aplica }}%</strong> aplica metodologías activas en aula. El <strong>{{ R.pct_protocolo }}%</strong> de IIEE cuenta con protocolo de integración curricular y el <strong>{{ R.pct_pei }}%</strong> reporta incorporación al PEI / programación (incluye «en proceso»).</p>
+    {% else %}
+    <p style="opacity:.6">Aún sin respuestas de docentes registradas.</p>
+    {% endif %}
+
+    <!-- 4.6 Score de impacto -->
+    <h4 style="color:var(--coral);margin-top:24px">4.6 · Score global de impacto</h4>
+    <div class="grid cols-2">
+      <div class="impact-stripe" style="background:{{ R.imp_est.global_color or '#B5BDC9' }}">
+        <div>
+          <div class="label">ESTUDIANTES (n={{ R.imp_est.n }})</div>
+          <div class="big">{{ R.imp_est.global or '—' }}{% if R.imp_est.global is not none %}<span style="font-size:18px;opacity:.6">/100</span>{% endif %}</div>
+          <div class="level">{{ R.imp_est.global_level }}</div>
+        </div>
+      </div>
+      <div class="impact-stripe" style="background:{{ R.imp_doc.global_color or '#B5BDC9' }}">
+        <div>
+          <div class="label">DOCENTES (n={{ R.imp_doc.n }})</div>
+          <div class="big">{{ R.imp_doc.global or '—' }}{% if R.imp_doc.global is not none %}<span style="font-size:18px;opacity:.6">/100</span>{% endif %}</div>
+          <div class="level">{{ R.imp_doc.global_level }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VI. CONCLUSIONES -->
+    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">VI · Conclusiones</h3>
+    {% if R.conclusiones %}
+      <ol style="margin-top:14px">
+      {% for c in R.conclusiones %}
+        <li style="margin-bottom:14px"><strong style="color:var(--coral)">{{ c.titulo }}.</strong> {{ c.texto }}</li>
+      {% endfor %}
+      </ol>
+    {% else %}
+      <p style="opacity:.6">Las conclusiones se generarán automáticamente cuando haya respuestas suficientes.</p>
+    {% endif %}
+
+    <!-- VII. RECOMENDACIONES -->
+    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">VII · Recomendaciones</h3>
+    <ul style="margin-top:14px">
+    {% for r in R.recomendaciones %}
+      <li style="margin-bottom:10px;line-height:1.55">{{ r }}</li>
+    {% endfor %}
+    </ul>
+
+    <div class="no-print" style="margin-top:32px;padding:18px;background:var(--ivory);border-radius:10px;font-size:12px;color:var(--dark);opacity:.7">
+      ✨ Este informe se regenera en cada visita a la página, reflejando el estado actual de la base de datos.
+      Para una versión impresa/PDF, usa el botón <strong>🖨 Imprimir</strong> al inicio.
+    </div>
   </div>
 </section>
 
