@@ -414,7 +414,7 @@
     <!-- IV. RESULTADOS — generados dinámicamente desde R.items -->
     <h3 style="color:var(--navy);font-size:22px;margin-top:36px">IV · Resultados</h3>
 
-    {% for item in R.items %}
+    {% for item in R['items'] %}
       {% if item.kind == 'section' %}
         <div class="report-item section">
           <h3>{{ item.title }}</h3>
