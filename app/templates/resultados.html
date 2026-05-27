@@ -350,23 +350,44 @@
   </div>
 </section>
 
-<!-- =============== INFORME AUTOMATIZADO (estilo LdB) =============== -->
+<!-- =============== INFORME AUTOMATIZADO ENRIQUECIDO =============== -->
+<style>
+.report-item{background:var(--white);border-radius:12px;padding:24px;margin:18px 0;box-shadow:0 3px 14px rgba(10,31,61,.06);border-top:3px solid var(--coral)}
+.report-item.chart{border-top-color:var(--aqua)}
+.report-item.section{background:linear-gradient(135deg,var(--navy),var(--indigo));color:#fff;border:0}
+.report-item.section h3{color:#fff;margin:0}
+.report-item.section p{color:var(--grey);margin-top:8px}
+.report-num{display:inline-block;background:var(--coral);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:1px;margin-right:8px}
+.report-num.chart{background:var(--aqua);color:var(--navy)}
+.report-title{font-size:15px;color:var(--navy);font-weight:700;margin-bottom:14px;line-height:1.45}
+.report-extra{display:inline-block;background:var(--ivory);color:var(--navy);padding:2px 10px;border-radius:14px;font-size:11px;font-weight:700;margin-left:8px}
+.report-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.report-table th{background:#FFD400;color:#0a1f3d;padding:8px 10px;text-align:left;border:1px solid #d8c52f;font-weight:700}
+.report-table td{padding:7px 10px;border:1px solid #e2e6ec;background:#fff}
+.report-table tr:nth-child(even) td{background:#fafbfd}
+.report-table .total td{background:#0a1f3d;color:#fff;font-weight:700}
+.report-fuente{font-size:10.5px;color:#6e7785;margin-top:10px;font-style:italic}
+.report-interp{background:#fffdf2;border-left:3px solid #F7C559;padding:12px 14px;border-radius:6px;margin-top:14px;font-size:13px;color:#5b4b1a}
+.report-interp::before{content:"📊 Interpretación · "; font-weight:800;color:#caa235}
+.chart-canvas{position:relative;height:320px}
+</style>
+
 <section class="report-section" id="informe" style="background:#fafbfd;border-top:6px solid var(--coral)">
   <div class="wrap">
     {% set R = payload.report_lb %}
     <p class="kicker" style="color:var(--coral);font-weight:700;letter-spacing:3px;font-size:11px">INFORME AUTOMATIZADO · ACTUALIZADO {{ R.generated_at }} UTC</p>
     <h2 style="font-size:36px;line-height:1.1">6 · Informe de resultados<br><span style="color:var(--coral)">«Mejora de las oportunidades de inserción sociolaboral juvenil en Cutervo»</span></h2>
-    <p class="lead">Replica la estructura del informe de Línea de Base del IPP. Se actualiza solo conforme entran respuestas.</p>
+    <p class="lead">Estructura académica con tablas y gráficos numerados, fuente al pie e interpretación. Se actualiza con cada nueva respuesta registrada.</p>
 
     <!-- I. DATOS GENERALES -->
     <h3 style="color:var(--navy);font-size:22px;margin-top:36px">I · Datos generales</h3>
-    <table class="tbl" style="margin-top:14px">
+    <table class="report-table" style="margin-top:14px;max-width:780px">
       <tbody>
-        <tr><td style="width:30%;font-weight:600;color:var(--navy)">Población participante</td><td>Estudiantes del nivel secundario y docentes capacitados de Cutervo – Cajamarca participantes en el proyecto.</td></tr>
-        <tr><td style="font-weight:600;color:var(--navy)">Instrumentos</td><td>Cuestionarios virtuales (Anexos 1 y 2) + instrumentos cualitativos (KII, FGD, MSC, observación).</td></tr>
-        <tr><td style="font-weight:600;color:var(--navy)">Ubicación</td><td>Provincia de Cutervo, Cajamarca – Perú.</td></tr>
-        <tr><td style="font-weight:600;color:var(--navy)">Período de aplicación</td><td>{{ R.fecha_min }} – {{ R.fecha_max }}</td></tr>
-        <tr><td style="font-weight:600;color:var(--navy)">N° de participantes</td><td><strong>{{ R.n_est }} estudiantes</strong> y <strong>{{ R.n_doc }} docentes</strong> en <strong>{{ R.n_iiee }} instituciones educativas</strong></td></tr>
+        <tr><td style="width:30%;font-weight:600;color:var(--navy);background:#fffbe0">Población participante</td><td>Estudiantes del nivel secundario y docentes capacitados de Cutervo – Cajamarca participantes en el proyecto.</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy);background:#fffbe0">Instrumentos</td><td>Cuestionarios virtuales (Anexos 1 y 2) + instrumentos cualitativos (KII, FGD, MSC, observación).</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy);background:#fffbe0">Ubicación</td><td>Provincia de Cutervo, Cajamarca – Perú.</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy);background:#fffbe0">Período de aplicación</td><td>{{ R.fecha_min }} – {{ R.fecha_max }}</td></tr>
+        <tr><td style="font-weight:600;color:var(--navy);background:#fffbe0">N° de participantes</td><td><strong>{{ R.n_est }} estudiantes</strong> y <strong>{{ R.n_doc }} docentes</strong> en <strong>{{ R.n_iiee }} instituciones educativas</strong></td></tr>
       </tbody>
     </table>
 
@@ -390,11 +411,99 @@
       </li>
     </ul>
 
-    <!-- IV. RESULTADOS -->
+    <!-- IV. RESULTADOS — generados dinámicamente desde R.items -->
     <h3 style="color:var(--navy);font-size:22px;margin-top:36px">IV · Resultados</h3>
 
-    <!-- 4.1 Perfil -->
-    <h4 style="color:var(--coral);margin-top:24px">4.1 · Perfil de los encuestados</h4>
+    {% for item in R.items %}
+      {% if item.kind == 'section' %}
+        <div class="report-item section">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.intro }}</p>
+        </div>
+
+      {% elif item.kind == 'table' %}
+        <div class="report-item">
+          <div class="report-title">
+            <span class="report-num">Tabla {{ item.num }}</span>{{ item.title }}
+            {% if item.extra %}<span class="report-extra">{{ item.extra }}</span>{% endif %}
+          </div>
+          <table class="report-table">
+            <thead><tr>{% for h in item.headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+            <tbody>
+              {% for r in item.rows %}
+                <tr>{% for c in r %}<td>{{ c }}</td>{% endfor %}</tr>
+              {% endfor %}
+              {% if item.total_row %}
+                <tr class="total">{% for c in item.total_row %}<td>{{ c }}</td>{% endfor %}</tr>
+              {% endif %}
+            </tbody>
+          </table>
+          <div class="report-fuente">Fuente: {{ item.fuente }}</div>
+          {% if item.interp %}<div class="report-interp">{{ item.interp }}</div>{% endif %}
+        </div>
+
+      {% elif item.kind == 'chart' %}
+        <div class="report-item chart">
+          <div class="report-title">
+            <span class="report-num chart">Gráfico {{ item.num }}</span>{{ item.title }}
+          </div>
+          <div class="chart-canvas"><canvas id="rchart-{{ item.num }}"></canvas></div>
+          <div class="report-fuente">Fuente: {{ item.fuente }}</div>
+        </div>
+        <script>
+          (function() {
+            const ctx = document.getElementById('rchart-{{ item.num }}');
+            if (!ctx) return;
+            const palette = ['#FF5C4D','#2EC4B6','#F7C559','#0A1F3D','#162E5C','#caa235','#B5BDC9','#e84a3c','#2a8c7f','#d6a541','#3a5fa0','#7a8aa3'];
+            {% if item.chart_type == 'stacked_bar' %}
+              new Chart(ctx, {
+                type:'bar',
+                data:{
+                  labels: {{ item.labels|tojson }},
+                  datasets: [
+                    {% for d in item.datasets %}
+                      {label: {{ d.label|tojson }}, data: {{ d.data|tojson }}, backgroundColor: palette[{{ loop.index0 }} % palette.length]},
+                    {% endfor %}
+                  ]
+                },
+                options:{responsive:true,maintainAspectRatio:false,
+                  scales:{x:{stacked:true},y:{stacked:true,max:100,ticks:{callback:v=>v+'%'}}},
+                  plugins:{legend:{position:'top'}}}
+              });
+            {% elif item.chart_type == 'horizontal_bar' %}
+              new Chart(ctx, {
+                type:'bar',
+                data:{labels:{{ item.labels|tojson }},
+                      datasets:[{label:'Score',data:{{ item.data|tojson }},backgroundColor:palette}]},
+                options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+                  scales:{x:{min:0,max:100}},
+                  plugins:{legend:{display:false}}}
+              });
+            {% elif item.chart_type in ['doughnut','pie'] %}
+              new Chart(ctx, {
+                type:'{{ item.chart_type }}',
+                data:{labels:{{ item.labels|tojson }},
+                      datasets:[{data:{{ item.data|tojson }},backgroundColor:palette}]},
+                options:{responsive:true,maintainAspectRatio:false,
+                  plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}
+              });
+            {% else %}
+              new Chart(ctx, {
+                type:'bar',
+                data:{labels:{{ item.labels|tojson }},
+                      datasets:[{label:'%',data:{{ item.data|tojson }},backgroundColor:palette}]},
+                options:{responsive:true,maintainAspectRatio:false,
+                  scales:{y:{ticks:{callback:v=>v+'%'}}},
+                  plugins:{legend:{display:false}}}
+              });
+            {% endif %}
+          })();
+        </script>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Marcador: aquí terminaba la sección antigua, ahora se renderiza arriba -->
+    <div style="display:none">
     {% if R.n_est %}
       <p>Se aplicó la encuesta en <strong>{{ R.n_iiee }} IIEE</strong> con un total de <strong>{{ R.n_est }} estudiantes</strong>.
         {% if R.perfil_sexo %}
@@ -486,8 +595,10 @@
       </div>
     </div>
 
+    </div><!-- fin del bloque oculto que envuelve la sección 4.x antigua -->
+
     <!-- VI. CONCLUSIONES -->
-    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">VI · Conclusiones</h3>
+    <h3 style="color:var(--navy);font-size:22px;margin-top:36px">V · Conclusiones</h3>
     {% if R.conclusiones %}
       <ol style="margin-top:14px">
       {% for c in R.conclusiones %}

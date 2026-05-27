@@ -184,6 +184,60 @@ def compute_impact(db: Session, form_code: str) -> dict:
     }
 
 
+def compute_impact_by_ie(db: Session, form_code: str) -> dict:
+    """Calcula score de impacto agrupado por institución educativa.
+
+    Devuelve {'ies': [{ie, n, global, B, C, D, E}], 'dim_keys': ['B','C','D','E']}
+    """
+    form = get_form(form_code)
+    if not form: return {"ies": [], "dim_keys": []}
+    qmap = QUESTION_MAP.get(form_code, {})
+    if not qmap: return {"ies": [], "dim_keys": []}
+
+    # Indexar qid → letter
+    qid_to_letter = {}
+    for sec in form["sections"]:
+        letter = _section_letter(sec["title"])
+        for q in sec["questions"]:
+            if q["id"] in qmap:
+                qid_to_letter[q["id"]] = letter
+
+    rows = db.query(models.SurveyResponse).filter_by(form_code=form_code).all()
+    by_ie = defaultdict(lambda: {"global": [], "dims": defaultdict(list)})
+
+    for r in rows:
+        ie = (r.data or {}).get("institucion") or r.institucion or "—"
+        respondent_scores = []
+        per_dim = defaultdict(list)
+        for qid, kind in qmap.items():
+            v = (r.data or {}).get(qid)
+            s = score_value(kind, v)
+            if s is not None:
+                respondent_scores.append(s)
+                per_dim[qid_to_letter.get(qid, "?")].append(s)
+        if respondent_scores:
+            by_ie[ie]["global"].append(sum(respondent_scores) / len(respondent_scores))
+            for L, sc in per_dim.items():
+                by_ie[ie]["dims"][L].extend(sc)
+
+    dim_keys = sorted({l for v in by_ie.values() for l in v["dims"].keys()})
+    out_rows = []
+    for ie, d in by_ie.items():
+        if not d["global"]: continue
+        row = {
+            "ie": ie,
+            "n": len(d["global"]),
+            "global": round(sum(d["global"]) / len(d["global"]), 1),
+        }
+        for L in dim_keys:
+            scores = d["dims"].get(L, [])
+            row[L] = round(sum(scores) / len(scores), 1) if scores else None
+        row["color"] = _level_color(row["global"])
+        out_rows.append(row)
+    out_rows.sort(key=lambda x: -x["global"])
+    return {"ies": out_rows, "dim_keys": dim_keys}
+
+
 def _level_color(score):
     if score is None: return "#B5BDC9"  # gris
     if score >= 80:   return "#2EC4B6"  # aqua = alto
