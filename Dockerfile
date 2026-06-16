@@ -14,6 +14,7 @@ RUN pip install -r /code/requirements.txt
 
 COPY app /code/app
 COPY docs /code/docs
+COPY seed_demo.py /code/seed_demo.py
 
 EXPOSE 8000
 

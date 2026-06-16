@@ -19,8 +19,7 @@
           <div class="q-label">{{ q.label }}</div>
           <div class="q-value">{{ r.data.get(q.id) or '—' }}</div>
           {% if q.type == 'audio_text' %}
-            {% set q_audios = audios | select('match', '^' ~ q.id ~ '.*\\.webm$') | list %}
-            {% for a in q_audios %}
+            {% for a in audios_by_qid.get(q.id, []) %}
               <audio controls src="/admin/audio/{{ form.code }}/{{ r.id }}/{{ a }}"></audio>
             {% endfor %}
           {% endif %}

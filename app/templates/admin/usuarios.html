@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Gestor de perfiles{% endblock %}
+{% block content %}
+<section class="hero" style="padding:60px 0 50px">
+  <div class="wrap">
+    <div class="kicker">GESTOR DE PERFILES</div>
+    <h1>Usuarios del sistema</h1>
+    <div class="accent-bar"></div>
+    <p style="margin-top:18px">{{ users|length }} usuarios registrados</p>
+    <div style="margin-top:24px">
+      <a class="btn" href="/admin/usuarios/nuevo">＋ Crear nuevo usuario</a>
+      <a class="btn outline" href="/admin">← Panel</a>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <table class="tbl">
+      <thead><tr>
+        <th>Usuario</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th></th>
+      </tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td><strong>{{ u.username }}</strong>{% if u.id == user.id %} <span class="chip" style="background:var(--coral);color:#fff">tú</span>{% endif %}</td>
+          <td>{{ u.full_name or "—" }}</td>
+          <td style="font-size:12px">{{ u.email or "—" }}</td>
+          <td><span class="chip" style="background:{% if u.role=='evaluador' %}var(--coral);color:#fff{% elif u.role=='equipo' %}var(--aqua);color:#fff{% else %}var(--ivory){% endif %}">{{ ROLE_LABELS[u.role] }}</span></td>
+          <td>{% if u.is_active %}<span style="color:#0a8a3a">● Activo</span>{% else %}<span style="color:#999">○ Inactivo</span>{% endif %}</td>
+          <td style="font-size:11px">{% if u.last_login %}{{ u.last_login.strftime('%Y-%m-%d %H:%M') }}{% else %}nunca{% endif %}</td>
+          <td>
+            <a class="btn small" href="/admin/usuarios/{{ u.id }}">Editar</a>
+            {% if u.id != user.id %}
+              <form method="post" action="/admin/usuarios/{{ u.id }}/eliminar" style="display:inline" onsubmit="return confirm('¿Eliminar {{ u.username }}? Esta acción no se puede deshacer.')">
+                <button class="btn small" style="background:#c41a0a">Eliminar</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div style="margin-top:36px">
+      <h3 style="color:var(--navy)">Roles del sistema</h3>
+      <div class="grid cols-3" style="margin-top:14px">
+        {% for code, desc in ROLES.items() %}
+          <div class="card">
+            <div class="chip" style="background:{% if code=='evaluador' %}var(--coral);color:#fff{% elif code=='equipo' %}var(--aqua);color:#fff{% else %}var(--ivory){% endif %}">{{ ROLE_LABELS[code] }}</div>
+            <p style="font-size:13px;color:var(--dark)">{{ desc }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

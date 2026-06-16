@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Mi perfil{% endblock %}
+{% block content %}
+<section class="hero" style="padding:50px 0 40px">
+  <div class="wrap">
+    <div class="kicker">PERFIL DEL USUARIO</div>
+    <h1>{{ user.full_name or user.username }}</h1>
+    <div class="accent-bar"></div>
+    <p style="margin-top:14px">
+      <span class="chip" style="background:{% if user.role=='evaluador' %}var(--coral);color:#fff{% elif user.role=='equipo' %}var(--aqua);color:#fff{% else %}var(--ivory){% endif %}">{{ ROLE_LABELS[user.role] }}</span>
+      &nbsp;@{{ user.username }}
+    </p>
+    {% if user.must_change_password %}
+      <div class="alert" style="margin-top:18px">Debes cambiar tu contraseña en este primer acceso.</div>
+    {% endif %}
+  </div>
+</section>
+<section class="section">
+  <div class="wrap" style="max-width:680px">
+    {% if ok %}<div style="background:#e7f7ec;border-left:4px solid #0a8a3a;padding:14px 18px;border-radius:8px;margin-bottom:18px;color:#0a5a26">Cambios guardados correctamente.</div>{% endif %}
+    {% if err %}<div class="alert">{{ err }}</div>{% endif %}
+    <form class="survey" method="post" action="/perfil">
+      <h3>Datos personales</h3>
+      <div class="q">
+        <label>Nombre completo</label>
+        <input type="text" name="full_name" value="{{ user.full_name or '' }}">
+      </div>
+      <div class="q">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ user.email or '' }}">
+      </div>
+
+      <h3>Cambiar contraseña</h3>
+      <p style="opacity:.7;font-size:13px;margin-top:-8px">Deja los campos vacíos si no quieres cambiarla.</p>
+      <div class="q">
+        <label>Contraseña actual</label>
+        <input type="password" name="current_password" autocomplete="current-password">
+      </div>
+      <div class="q">
+        <label>Nueva contraseña</label>
+        <input type="password" name="new_password" minlength="8" autocomplete="new-password">
+        <small style="opacity:.6;font-size:11px">Mínimo 8 caracteres.</small>
+      </div>
+      <div class="q">
+        <label>Repite la nueva contraseña</label>
+        <input type="password" name="new_password2" minlength="8" autocomplete="new-password">
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="submit">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -4,6 +4,34 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Boolean
 from .database import Base
 
 
+# Roles disponibles en el sistema
+ROLES = {
+    "evaluador": "Evaluador — control total: usuarios, datos, configuración.",
+    "equipo":    "Equipo — completar instrumentos cualitativos, ver respuestas y resultados.",
+    "lector":    "Lector — solo ver la página de resultados.",
+}
+
+ROLE_LABELS = {
+    "evaluador": "Evaluador",
+    "equipo":    "Equipo",
+    "lector":    "Lector",
+}
+
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(80), unique=True, index=True, nullable=False)
+    full_name = Column(String(200))
+    email = Column(String(200))
+    password_hash = Column(String(255), nullable=False)
+    role = Column(String(20), default="lector", nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    must_change_password = Column(Boolean, default=False, nullable=False)
+    last_login = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class SurveyResponse(Base):
     __tablename__ = "survey_responses"
 
@@ -29,7 +57,7 @@ class AudioTranscript(Base):
     transcript = Column(Text, nullable=True)
     language = Column(String(10), nullable=True)
     model = Column(String(50), nullable=True)
-    status = Column(String(20), default="pending")  # pending | done | error
+    status = Column(String(20), default="pending")
     error = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -40,7 +68,7 @@ class FormAnalysis(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     form_code = Column(String(50), index=True)
-    payload = Column(JSON, nullable=False)  # estructura: {criterio: {temas:[], citas:[]}}
+    payload = Column(JSON, nullable=False)
     model = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

@@ -18,10 +18,12 @@
       <a href="/cronograma">Cronograma</a>
       <a href="/resultados?token={{ results_token }}">Resultados</a>
       {% if user %}
-        <a href="/admin" class="nav-cta">Panel</a>
-        <a href="/logout">Salir ({{ user }})</a>
+        {% if can('view_admin') %}<a href="/admin">Panel</a>{% endif %}
+        {% if can('manage_users') %}<a href="/admin/usuarios">Usuarios</a>{% endif %}
+        <a href="/perfil">Mi perfil</a>
+        <a href="/logout" class="nav-cta">Salir · {{ user.username }}</a>
       {% else %}
-        <a href="/login" class="nav-cta">Login evaluador</a>
+        <a href="/login" class="nav-cta">Entrar</a>
       {% endif %}
     </nav>
   </div>
