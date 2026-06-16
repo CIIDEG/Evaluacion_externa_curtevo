@@ -6,7 +6,7 @@ services:
     env_file: .env
     volumes:
       - ./data:/code/data
-      - ./docs:/code/docs
+      - ./docs:/code/docs:ro
     networks:
       - coolify
     labels:
