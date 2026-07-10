@@ -17,7 +17,7 @@ from . import impact as impact_mod
 
 FUENTE_EST = "Encuesta a estudiantes — Proyecto SOLPCD/2024/0118 (Cutervo, Cajamarca)"
 FUENTE_DOC = "Encuesta a docentes — Proyecto SOLPCD/2024/0118 (Cutervo, Cajamarca)"
-FUENTE_CALI = "Instrumentos cualitativos del proyecto (KII, FGD, MSC, observación)"
+FUENTE_CALI = "Instrumentos cualitativos del proyecto (KII (entrevistas a informantes clave, por sus siglas en inglés), FGD (grupos focales de discusión, por sus siglas en inglés), MSC (Historias del Cambio Más Significativo, por sus siglas en inglés), observación)"
 
 
 # ============================================================
@@ -153,7 +153,7 @@ def _interp_impact_by_ie(by_ie):
     diff = top["global"] - bot["global"]
     if diff >= 20:
         text += (f"La diferencia de {round(diff,1)} puntos entre ambos extremos sugiere heterogeneidad en la implementación "
-                 f"o en las condiciones contextuales de cada IE. Recomendable: profundizar análisis cualitativo en las IIEE con menor score "
+                 f"o en las condiciones contextuales de cada IE. Recomendable: profundizar análisis cualitativo en las IIEE (instituciones educativas) con menor score "
                  f"para identificar factores limitantes.")
     else:
         text += (f"La diferencia de {round(diff,1)} puntos entre ambos extremos es moderada, lo que indica una implementación bastante homogénea entre IIEE.")
@@ -496,7 +496,7 @@ def build_report(db: Session) -> dict:
         })
         items.append({
             "kind": "table", "num": "T20",
-            "title": "Incorporación del emprendimiento al PEI / programación curricular",
+            "title": "Incorporación del emprendimiento al PEI (Proyecto Educativo Institucional) / programación curricular",
             "headers": ["Estado", "N°", "%"],
             "rows": [[i["label"], i["n"], f"{i['pct']}"] for i in d_pei],
             "fuente": FUENTE_DOC,
@@ -613,7 +613,7 @@ def build_report(db: Session) -> dict:
         recs.append(f"Profundizar el trabajo en equidad de género: el {pct_no_eq}% de estudiantes percibe ausencia de equidad, brecha que debe abordarse con sesiones diferenciadas.")
     pct_activo = _pct(rows_est, "b5_activo", {"Sí"})
     if pct_activo < 35 and n_est >= 10:
-        recs.append(f"Sólo el {pct_activo}% mantiene su emprendimiento activo: asesoría técnica continuada y vinculación con redes locales (municipalidad, COPALE).")
+        recs.append(f"Sólo el {pct_activo}% mantiene su emprendimiento activo: asesoría técnica continuada y vinculación con redes locales (municipalidad, COPALE (Consejo Participativo Local de Educación)).")
     if imp_est_by_ie["ies"] and len(imp_est_by_ie["ies"]) >= 2:
         bottom_ies = [r["ie"] for r in imp_est_by_ie["ies"] if r["global"] < 65]
         if bottom_ies:
@@ -624,7 +624,7 @@ def build_report(db: Session) -> dict:
         recs.append("Impulsar formalización del enfoque de emprendimiento en los PEI de las IIEE participantes.")
     recs.extend([
         "Sostener un sistema de monitoreo activo durante todo el ciclo, recogiendo voces cualitativas en cada IE.",
-        "Articular los resultados con la UGEL Cutervo y la Mesa de Concertación para escalar buenas prácticas.",
+        "Articular los resultados con la UGEL (Unidad de Gestión Educativa Local) Cutervo y la Mesa de Concertación para escalar buenas prácticas.",
         "Vincular los emprendimientos con problemáticas locales (agua, alimentación, ambiente) para reforzar pertinencia.",
     ])
 

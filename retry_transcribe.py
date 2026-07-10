@@ -1,0 +1,40 @@
+"""Resetea transcripciones con error a 'pending' y vuelve a procesarlas."""
+from app.database import SessionLocal
+from app import models, ai_hooks
+from pathlib import Path
+
+AUDIO_DIR = Path("/code/data/audio")
+db = SessionLocal()
+
+# 1. Reset
+n_reset = db.query(models.AudioTranscript).filter(models.AudioTranscript.status == "error").update({"status": "pending"})
+db.commit()
+print(f"Reseteados {n_reset} transcripts (error → pending)")
+
+# 2. Procesar
+pendientes = db.query(models.AudioTranscript).filter_by(status="pending").all()
+print(f"Audios pendientes: {len(pendientes)}\n")
+
+ok = 0; fail = 0
+for t in pendientes:
+    path = AUDIO_DIR / t.form_code / str(t.response_id) / t.filename
+    print(f"  → {t.form_code}/#{t.response_id}/{t.filename}", flush=True)
+    if not path.exists():
+        print(f"    archivo no existe, skip"); continue
+    r = ai_hooks.transcribe_audio(path)
+    t.status = r["status"]
+    t.transcript = r["transcript"]
+    t.language = r["language"]
+    t.model = r["model"]
+    t.error = r["error"]
+    db.add(t); db.commit()
+    if r["status"] == "done":
+        snip = (r["transcript"] or "")[:220].replace("\n", " ")
+        print(f"    ✓ {len(r['transcript'] or '')} chars · «{snip}...»")
+        ok += 1
+    else:
+        err = (r.get('error') or '')[:300]
+        print(f"    ✗ {r['status']}: {err}")
+        fail += 1
+
+print(f"\nResumen final: ✓ {ok} transcritos · ✗ {fail} con error")

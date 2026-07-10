@@ -142,6 +142,14 @@ def build_full_results(db: Session, include_audios: bool = False) -> dict:
     """Construye el payload completo para la página de resultados."""
     from . import impact as impact_mod
     from . import report_lb as report_mod
+    # análisis IA cacheados (form_code → {data, model, created_at})
+    ia_analyses = {}
+    for fa in db.query(models.FormAnalysis).order_by(models.FormAnalysis.created_at.desc()).all():
+        if fa.form_code not in ia_analyses:
+            ia_analyses[fa.form_code] = {
+                "data": fa.payload, "model": fa.model,
+                "created_at": fa.created_at.strftime("%Y-%m-%d %H:%M"),
+            }
     out = {
         "overview": overview_metrics(db),
         "quantitative": {},
@@ -150,6 +158,7 @@ def build_full_results(db: Session, include_audios: bool = False) -> dict:
         "audios": [],
         "impact": impact_mod.build_impact_overview(db),
         "report_lb": report_mod.build_report(db),
+        "ia_analyses": ia_analyses,
     }
     for f in ALL_FORMS:
         code = f["code"]

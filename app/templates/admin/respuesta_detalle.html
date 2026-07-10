@@ -20,7 +20,20 @@
           <div class="q-value">{{ r.data.get(q.id) or '—' }}</div>
           {% if q.type == 'audio_text' %}
             {% for a in audios_by_qid.get(q.id, []) %}
-              <audio controls src="/admin/audio/{{ form.code }}/{{ r.id }}/{{ a }}"></audio>
+              <div style="margin-top:10px">
+                <audio controls src="/admin/audio/{{ form.code }}/{{ r.id }}/{{ a }}" style="width:100%;max-width:480px"></audio>
+                {% set t = transcripts.get(a) %}
+                {% if t and t.transcript %}
+                  <details style="margin-top:6px;background:#fff7f0;border-left:3px solid var(--coral);padding:10px 14px;border-radius:6px">
+                    <summary style="cursor:pointer;color:var(--coral);font-weight:700;font-size:12px;letter-spacing:1px">🤖 TRANSCRIPCIÓN AUTOMÁTICA · {{ t.model }} · {{ t.transcript|length }} chars</summary>
+                    <div style="margin-top:8px;white-space:pre-wrap;line-height:1.6;font-size:13px;color:var(--dark)">{{ t.transcript }}</div>
+                  </details>
+                {% elif t and t.status == 'pending' %}
+                  <p style="font-size:11px;color:var(--gold);margin:4px 0">⏳ Transcripción pendiente</p>
+                {% elif t and t.status == 'error' %}
+                  <p style="font-size:11px;color:var(--coral);margin:4px 0">⚠️ Error: {{ t.error[:120] if t.error else 'desconocido' }}</p>
+                {% endif %}
+              </div>
             {% endfor %}
           {% endif %}
         </div>

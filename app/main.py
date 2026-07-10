@@ -82,9 +82,16 @@ def anexos(request: Request):
 def documentos(request: Request):
     items = []
     if DOCS_DIR.exists():
-        for p in sorted(DOCS_DIR.iterdir()):
-            if p.is_file():
-                items.append({"name": p.name, "size_kb": round(p.stat().st_size / 1024, 1)})
+        files = [p for p in DOCS_DIR.iterdir() if p.is_file()]
+        # ordenar por modificación más reciente primero
+        files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        for p in files:
+            st = p.stat()
+            items.append({
+                "name": p.name,
+                "size_kb": round(st.st_size / 1024, 1),
+                "modified": datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M"),
+            })
     return templates.TemplateResponse("documentos.html", ctx(request, items=items))
 
 
@@ -435,9 +442,14 @@ def admin_respuesta_detalle(code: str, rid: int, request: Request, db: Session =
     if not r: raise HTTPException(404)
     audio_dir = AUDIO_DIR / code / str(rid)
     audios = sorted([p.name for p in audio_dir.glob("*.webm")]) if audio_dir.exists() else []
+    # agrupar audios por qid (prefijo antes del primer '-')
+    audios_by_qid = {}
+    for a in audios:
+        qid = a.split("-")[0]
+        audios_by_qid.setdefault(qid, []).append(a)
     transcripts = {t.filename: t for t in db.query(models.AudioTranscript).filter_by(response_id=rid).all()}
     return templates.TemplateResponse("admin/respuesta_detalle.html", ctx(request,
-        form=form, r=r, audios=audios, transcripts=transcripts,
+        form=form, r=r, audios=audios, audios_by_qid=audios_by_qid, transcripts=transcripts,
     ))
 
 
@@ -524,9 +536,9 @@ def admin_transcribe_all(request: Request, db: Session = Depends(get_db)):
     if not me or not auth.can(me, "ai_run"):
         raise HTTPException(403)
     if not ai_hooks.is_ai_enabled():
-        return JSONResponse({"ok": False, "msg": "Configura OPENAI_API_KEY"})
+        return JSONResponse({"ok": False, "msg": "Configura GEMINI_API_KEY"})
     pendientes = db.query(models.AudioTranscript).filter_by(status="pending").all()
-    procesados = 0
+    procesados = 0; errores = 0
     for t in pendientes:
         path = AUDIO_DIR / t.form_code / str(t.response_id) / t.filename
         if not path.is_file(): continue
@@ -536,9 +548,54 @@ def admin_transcribe_all(request: Request, db: Session = Depends(get_db)):
             procesados += 1
         else:
             t.status = r["status"]; t.error = r["error"]
-        db.add(t)
-    db.commit()
-    return JSONResponse({"ok": True, "procesados": procesados})
+            errores += 1
+        db.add(t); db.commit()
+    return JSONResponse({"ok": True, "procesados": procesados, "errores": errores, "total_pendientes_inicial": len(pendientes)})
+
+
+@app.post("/admin/ai/analyze-all")
+def admin_analyze_all(request: Request, db: Session = Depends(get_db)):
+    """Ejecuta análisis temático por criterio CAD usando textos + transcripciones."""
+    me = auth.current_user(request)
+    if not me or not auth.can(me, "ai_run"):
+        raise HTTPException(403)
+    if not ai_hooks.is_ai_enabled():
+        return JSONResponse({"ok": False, "msg": "Configura GEMINI_API_KEY"})
+    # Recopilar items por form_code: textos escritos + transcripciones de audio
+    forms_done = {}
+    for code in ["kii", "fgd_jovenes", "fgd_docentes", "observacion", "msc"]:
+        items = []
+        # textos escritos (textarea/audio_text que tenga texto)
+        rows = db.query(models.SurveyResponse).filter_by(form_code=code).all()
+        form = get_form(code)
+        if not form: continue
+        for r in rows:
+            for sec in form["sections"]:
+                for q in sec["questions"]:
+                    if q["type"] in ("textarea", "audio_text"):
+                        v = ((r.data or {}).get(q["id"]) or "").strip()
+                        if v and len(v) > 10:
+                            items.append({"qid": q["id"], "label": q["label"], "text": v, "response_id": r.id})
+        # transcripciones de audio
+        ts = db.query(models.AudioTranscript).filter_by(form_code=code, status="done").all()
+        for t in ts:
+            qlabel = ""
+            for sec in form["sections"]:
+                for q in sec["questions"]:
+                    if q["id"] == t.qid:
+                        qlabel = q["label"]; break
+            items.append({"qid": t.qid, "label": "🎙 " + qlabel, "text": t.transcript or "", "response_id": t.response_id})
+        if not items: continue
+        res = ai_hooks.analyze_qualitative(code, items)
+        if res["status"] == "done":
+            # Guardar en FormAnalysis (sobrescribir el último)
+            db.query(models.FormAnalysis).filter_by(form_code=code).delete()
+            fa = models.FormAnalysis(form_code=code, payload=res["data"], model=res["model"])
+            db.add(fa); db.commit()
+            forms_done[code] = {"ok": True, "n_items": len(items)}
+        else:
+            forms_done[code] = {"ok": False, "error": res.get("error","?")[:200], "n_items": len(items)}
+    return JSONResponse({"ok": True, "results": forms_done})
 
 
 @app.get("/health")

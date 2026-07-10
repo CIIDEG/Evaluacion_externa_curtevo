@@ -350,6 +350,43 @@
   </div>
 </section>
 
+<!-- =============== IA · ANÁLISIS TEMÁTICO POR CRITERIO CAD =============== -->
+{% if payload.ia_analyses %}
+<section class="report-section" id="ia-analisis" style="background:#fff8f5;border-top:6px solid var(--coral)">
+  <div class="wrap">
+    <p class="kicker" style="color:var(--coral);font-weight:700;letter-spacing:3px;font-size:11px">🤖 ANÁLISIS IA · GEMINI 2.5 FLASH</p>
+    <h2 style="font-size:32px">5.5 · Síntesis temática por criterio CAD</h2>
+    <p class="lead">Procesamiento automático con Gemini sobre los textos escritos y transcripciones de audio de los instrumentos cualitativos (KII, FGD, MSC, observación). Cada criterio agrupa los temas recurrentes con sus citas representativas, listo para incorporar al informe final.</p>
+
+    {% set CRIT_LABEL = {"pertinencia":"PERTINENCIA","coherencia":"COHERENCIA","eficiencia":"EFICIENCIA","eficacia":"EFICACIA","impacto":"IMPACTO","sostenibilidad":"SOSTENIBILIDAD"} %}
+    {% set CRIT_COLOR = {"pertinencia":"#FF5C4D","coherencia":"#2EC4B6","eficiencia":"#F7C559","eficacia":"#0A1F3D","impacto":"#162E5C","sostenibilidad":"#caa235"} %}
+
+    {% for form_code, ana in payload.ia_analyses.items() %}
+      <div style="background:var(--white);border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 4px 18px rgba(10,31,61,.07)">
+        <h3 style="margin:0 0 6px;color:var(--navy)">Instrumento: <strong style="color:var(--coral)">{{ form_code|upper }}</strong></h3>
+        <p style="font-size:11px;opacity:.6;margin:0 0 18px">Generado {{ ana.created_at }} UTC · modelo {{ ana.model }}</p>
+
+        {% for crit_key, crit_data in ana.data.items() %}
+          {% if crit_data.temas %}
+          <div style="margin:18px 0;padding:14px 18px;border-left:4px solid {{ CRIT_COLOR.get(crit_key, '#888') }};background:#fafbfd;border-radius:6px">
+            <h4 style="margin:0 0 10px;color:{{ CRIT_COLOR.get(crit_key, '#888') }};font-size:14px;letter-spacing:2px">{{ CRIT_LABEL.get(crit_key, crit_key|upper) }}</h4>
+            {% for tema in crit_data.temas %}
+              <div style="margin:12px 0 16px">
+                <p style="font-weight:700;color:var(--navy);margin:0 0 6px;font-size:14px">▸ {{ tema.titulo }}</p>
+                {% for cita in tema.citas %}
+                  <blockquote style="font-style:italic;color:var(--dark);margin:4px 0 4px 14px;padding:6px 12px;background:var(--white);border-left:2px solid var(--gold);border-radius:4px;font-size:13px">{{ cita }}</blockquote>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <!-- =============== INFORME AUTOMATIZADO ENRIQUECIDO =============== -->
 <style>
 .report-item{background:var(--white);border-radius:12px;padding:24px;margin:18px 0;box-shadow:0 3px 14px rgba(10,31,61,.06);border-top:3px solid var(--coral)}
